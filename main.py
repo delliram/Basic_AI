@@ -160,8 +160,8 @@ class chatbotassistance:
 
 
     def load_model(self,model_path,dimension_path):
-        with open(dimension_path,'r') as f:
-            dimension=json.read(f)
+        with open(dimension_path,'r') as F:
+            dimension=json.load(F)
 
         self.model=chatbotmodel(dimension['input_size'],dimension['output_size'])
         self.model.load_state_dict(torch.load(model_path,weights_only=True))
@@ -197,14 +197,20 @@ if __name__ =="__main__":
     assistant=chatbotassistance('Intention.json',function_mappings={'stocks':get_stocks})
     assistant.collecting_intention_information()
     assistant.prepare_data()
-    assistant.train_model(batch_size=8,lr=0.001,epoch=100)
-    assistant.save_model('chatbot_model.pth','dimension.json')
+    
+    if os.path.exists('chatbot_model.pth') and os.path.exists('dimension.json'):
+        assistant.load_model('chatbot_model.pth', 'dimension.json')
+    else:
+        assistant.train_model(batch_size=8, lr=0.001, epoch=100)
+        assistant.save_model('chatbot_model.pth', 'dimension.json')
+
 
     while True:
         message =input("Enter the message \n")
 
-        if message=='/quit':
-            break
+        if message=='train':
+                assistant.train_model(batch_size=8, lr=0.001, epoch=1000)
+                assistant.save_model('chatbot_model.pth', 'dimension.json')
         print(assistant.process_message(message))
 
 
