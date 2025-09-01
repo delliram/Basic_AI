@@ -138,13 +138,15 @@ class chatbotassistance:
 
         for i in range(epoch):
 
+            self.model.train()
+
             running_loss=0.0
 
             for batch_x,batch_y in dataloader:
 
                 optimizer.zero_grad()
-                output=self.model(batch_x)
-                loss=loss_function(output,batch_y)
+                output=self.model(batch_x) # return the tensor of predicted % value  
+                loss=loss_function(output,batch_y) #compare with the actual lables
                 loss.backward()
                 optimizer.step()
                 running_loss+=loss
@@ -174,9 +176,9 @@ class chatbotassistance:
 
         self.model.eval()
         with torch.no_grad():
-            prediction= self.model(bag_tensor)
+            prediction= self.model(bag_tensor) #give the percentage lable which it might be 
         
-        predicted_class_index=torch.argmax(prediction,dim=1).item()
+        predicted_class_index=torch.argmax(prediction,dim=1).item() #taking the highest value taking the index skipping the class
         predicted_intent=self.intentions[predicted_class_index]
 
         if self.function_mappings:
@@ -214,15 +216,6 @@ if __name__ =="__main__":
         print(assistant.process_message(message))
 
 
-
-            
-
-
-
-
-# obj1=chatbotassistance('Intention.json')
-# obj1.collecting_intention_information()
-# obj1.prepare_data()
 
             
 
